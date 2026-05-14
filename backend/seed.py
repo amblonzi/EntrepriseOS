@@ -23,8 +23,8 @@ async def seed_data():
         # Create Admin User
         user = User(
             tenant_id=tenant.id,
-            email="admin@inphora.com",
-            hashed_password=get_password_hash("admin123"),
+            email=settings.SEED_ADMIN_EMAIL,
+            hashed_password=get_password_hash(settings.SEED_ADMIN_PASSWORD),
             full_name="System Administrator",
             role="admin"
         )

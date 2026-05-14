@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Search, Filter, MoreHorizontal, User as UserIcon, Building2, CircleDollarSign, X } from 'lucide-react';
+import { Plus, Search, Filter, MoreHorizontal, User as UserIcon, Building2, CircleDollarSign, X, Trash2 } from 'lucide-react';
 import api from '../../lib/api';
 
 interface Lead {
@@ -67,6 +67,16 @@ export const CRM = () => {
       console.error('Failed to create lead:', error);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!window.confirm('Are you sure you want to delete this lead?')) return;
+    try {
+      await api.delete(`/crm/leads/${id}`);
+      fetchLeads();
+    } catch (error) {
+      console.error('Failed to delete lead:', error);
     }
   };
 
@@ -218,7 +228,7 @@ export const CRM = () => {
                         </div>
                         <div>
                           <p className="text-sm font-medium text-slate-900">{lead.first_name} {lead.last_name}</p>
-                          <p className="text-xs text-slate-500">#{lead.id.toString().padStart(4, '0')}</p>
+                          <p className="text-xs text-slate-500">#{lead.id.toString().substring(0, 4)}</p>
                         </div>
                       </div>
                     </td>
@@ -240,8 +250,11 @@ export const CRM = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
-                        <MoreHorizontal size={18} />
+                      <button 
+                        onClick={() => handleDelete(lead.id)}
+                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 size={18} />
                       </button>
                     </td>
                   </tr>

@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     
     # Security
-    SECRET_KEY: str = "SUPER_SECRET_KEY_CHANGE_THIS_IN_PROD"
+    SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     
@@ -35,6 +35,10 @@ class Settings(BaseSettings):
         if isinstance(v, str):
             return v
         return f"postgresql+asyncpg://{values.get('POSTGRES_USER')}:{values.get('POSTGRES_PASSWORD')}@{values.get('POSTGRES_SERVER')}/{values.get('POSTGRES_DB')}"
+
+    # Seed Admin Credentials
+    SEED_ADMIN_EMAIL: str = "admin@inphora.com"
+    SEED_ADMIN_PASSWORD: str = "admin123"
 
     class Config:
         case_sensitive = True

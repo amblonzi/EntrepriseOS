@@ -22,7 +22,10 @@ async def read_leads(
     """
     result = await db.execute(
         select(Lead)
-        .where(Lead.tenant_id == current_user.tenant_id)
+        .where(
+            Lead.tenant_id == current_user.tenant_id,
+            Lead.is_deleted == False
+        )
         .offset(skip)
         .limit(limit)
     )
@@ -42,6 +45,57 @@ async def create_lead(
         **lead_in.dict(),
         tenant_id=current_user.tenant_id
     )
+    db.add(lead)
+    await db.commit()
+    await db.refresh(lead)
+    return lead
+
+@router.patch("/leads/{lead_id}", response_model=LeadOut)
+async def update_lead(
+    *,
+    db: AsyncSession = Depends(get_db),
+    lead_id: UUID,
+    lead_in: LeadUpdate,
+    current_user: User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Update a lead.
+    """
+    result = await db.execute(
+        select(Lead).where(Lead.id == lead_id, Lead.tenant_id == current_user.tenant_id)
+    )
+    lead = result.scalars().first()
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    update_data = lead_in.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(lead, field, value)
+    
+    db.add(lead)
+    await db.commit()
+    await db.refresh(lead)
+    return lead
+
+@router.delete("/leads/{lead_id}", response_model=LeadOut)
+async def delete_lead(
+    *,
+    db: AsyncSession = Depends(get_db),
+    lead_id: UUID,
+    current_user: User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Delete a lead (soft-delete).
+    """
+    result = await db.execute(
+        select(Lead).where(Lead.id == lead_id, Lead.tenant_id == current_user.tenant_id)
+    )
+    lead = result.scalars().first()
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    # Soft delete
+    lead.is_deleted = True
     db.add(lead)
     await db.commit()
     await db.refresh(lead)

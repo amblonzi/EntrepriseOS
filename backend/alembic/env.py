@@ -11,8 +11,7 @@ from alembic import context
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app.core.config import settings
-from app.models.base import Base
-from app.models import auth, crm # Ensure models are loaded
+from app.models import Base # This will now trigger imports of all models via __init__.py
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

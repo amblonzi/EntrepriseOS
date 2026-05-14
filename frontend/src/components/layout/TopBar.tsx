@@ -1,7 +1,9 @@
-import React from 'react';
-import { Bell, Search, User } from 'lucide-react';
+import { Bell, Search, User as UserIcon } from 'lucide-react';
+import { useAuthStore } from '../../store/authStore';
 
 export const TopBar = () => {
+  const user = useAuthStore((state) => state.user);
+
   return (
     <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8">
       <div className="relative w-96">
@@ -23,14 +25,15 @@ export const TopBar = () => {
         
         <div className="flex items-center gap-3 pl-6 border-l border-slate-200">
           <div className="text-right">
-            <p className="text-sm font-semibold text-slate-900">John Doe</p>
-            <p className="text-xs text-slate-500">Administrator</p>
+            <p className="text-sm font-semibold text-slate-900">{user?.full_name || 'Loading...'}</p>
+            <p className="text-xs text-slate-500 capitalize">{user?.role || 'User'}</p>
           </div>
           <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-            <User size={20} />
+            <UserIcon size={20} />
           </div>
         </div>
       </div>
     </header>
   );
 };
+

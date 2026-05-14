@@ -1,9 +1,7 @@
-import React from 'react';
 import { 
   Users, 
   DollarSign, 
   ShoppingCart, 
-  ArrowUpRight,
   TrendingUp,
   Activity
 } from 'lucide-react';

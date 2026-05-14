@@ -1,26 +1,96 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import Dashboard from './features/dashboard/Dashboard';
+import { Login } from './features/auth/Login';
+import { ProtectedRoute } from './components/layout/ProtectedRoute';
+import { useAuthStore } from './store/authStore';
+import { CRM } from './features/crm/CRM';
 
 function App() {
+  const checkAuth = useAuthStore((state) => state.checkAuth);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
   return (
     <Router>
       <Routes>
+        <Route path="/login" element={<Login />} />
+        
         <Route path="/" element={
-          <DashboardLayout>
-            <Dashboard />
-          </DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
+              <Dashboard />
+            </DashboardLayout>
+          </ProtectedRoute>
         } />
-        {/* Add more routes as needed */}
+        
         <Route path="/crm" element={
-          <DashboardLayout>
-            <div className="p-8">
-              <h1 className="text-3xl font-bold">CRM Module</h1>
-              <p className="text-slate-500 mt-2">Lead management and sales pipeline coming soon.</p>
-            </div>
-          </DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
+              <CRM />
+            </DashboardLayout>
+          </ProtectedRoute>
         } />
+        
+        <Route path="/inventory" element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <div className="p-8">
+                <h1 className="text-3xl font-bold text-slate-900">Inventory Module</h1>
+                <p className="text-slate-500 mt-2">Stock tracking and product management coming soon.</p>
+              </div>
+            </DashboardLayout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/finance" element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <div className="p-8">
+                <h1 className="text-3xl font-bold text-slate-900">Finance Module</h1>
+                <p className="text-slate-500 mt-2">Accounting and invoicing coming soon.</p>
+              </div>
+            </DashboardLayout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/hr" element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <div className="p-8">
+                <h1 className="text-3xl font-bold text-slate-900">HR Module</h1>
+                <p className="text-slate-500 mt-2">Employee management and payroll coming soon.</p>
+              </div>
+            </DashboardLayout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/analytics" element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <div className="p-8">
+                <h1 className="text-3xl font-bold text-slate-900">Analytics</h1>
+                <p className="text-slate-500 mt-2">Advanced reporting and data visualization coming soon.</p>
+              </div>
+            </DashboardLayout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/projects" element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <div className="p-8">
+                <h1 className="text-3xl font-bold text-slate-900">Projects</h1>
+                <p className="text-slate-500 mt-2">Task management and resource planning coming soon.</p>
+              </div>
+            </DashboardLayout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

@@ -1,15 +1,15 @@
 import React from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
 import { 
   LayoutDashboard, 
   Users, 
   Briefcase, 
   Package, 
   BarChart3, 
-  Settings, 
   LogOut,
   ChevronLeft,
   ChevronRight,
-  TrendingUp,
   CreditCard,
   UserCheck
 } from 'lucide-react';
@@ -27,6 +27,14 @@ const navItems = [
 
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = React.useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const logout = useAuthStore((state) => state.logout);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <aside className={cn(
@@ -44,23 +52,29 @@ export const Sidebar = () => {
       </div>
 
       <nav className="flex-1 px-4 space-y-2 mt-4">
-        {navItems.map((item) => (
-          <a
-            key={item.label}
-            href={item.href}
-            className={cn(
-              "flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group hover:bg-blue-600 hover:text-white",
-              collapsed ? "justify-center px-2" : ""
-            )}
-          >
-            <item.icon size={22} className="shrink-0 transition-transform group-hover:scale-110" />
-            {!collapsed && <span className="font-medium">{item.label}</span>}
-          </a>
-        ))}
+        {navItems.map((item) => {
+          const isActive = location.pathname === item.href;
+          return (
+            <Link
+              key={item.label}
+              to={item.href}
+              className={cn(
+                "flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group hover:bg-blue-600 hover:text-white",
+                collapsed ? "justify-center px-2" : "",
+                isActive ? "bg-blue-600 text-white" : ""
+              )}
+            >
+              <item.icon size={22} className="shrink-0 transition-transform group-hover:scale-110" />
+              {!collapsed && <span className="font-medium">{item.label}</span>}
+            </Link>
+          );
+        })}
       </nav>
 
       <div className="p-4 mt-auto border-t border-slate-800">
-        <button className={cn(
+        <button 
+          onClick={handleLogout}
+          className={cn(
           "flex items-center gap-4 px-4 py-3 w-full rounded-xl hover:bg-rose-500/10 hover:text-rose-500 transition-colors",
           collapsed ? "justify-center px-2" : ""
         )}>
@@ -71,3 +85,4 @@ export const Sidebar = () => {
     </aside>
   );
 };
+

@@ -1,0 +1,73 @@
+import React from 'react';
+import { 
+  LayoutDashboard, 
+  Users, 
+  Briefcase, 
+  Package, 
+  BarChart3, 
+  Settings, 
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  TrendingUp,
+  CreditCard,
+  UserCheck
+} from 'lucide-react';
+import { cn } from '../../lib/utils';
+
+const navItems = [
+  { icon: LayoutDashboard, label: 'Dashboard', href: '/' },
+  { icon: Users, label: 'CRM', href: '/crm' },
+  { icon: Package, label: 'Inventory', href: '/inventory' },
+  { icon: CreditCard, label: 'Finance', href: '/finance' },
+  { icon: UserCheck, label: 'HR', href: '/hr' },
+  { icon: BarChart3, label: 'Analytics', href: '/analytics' },
+  { icon: Briefcase, label: 'Projects', href: '/projects' },
+];
+
+export const Sidebar = () => {
+  const [collapsed, setCollapsed] = React.useState(false);
+
+  return (
+    <aside className={cn(
+      "h-screen bg-slate-950 text-slate-300 flex flex-col transition-all duration-300 ease-in-out border-r border-slate-800",
+      collapsed ? "w-20" : "w-64"
+    )}>
+      <div className="p-6 flex items-center justify-between">
+        {!collapsed && <span className="font-bold text-xl text-white tracking-tight">Inphora <span className="text-blue-500">OS</span></span>}
+        <button 
+          onClick={() => setCollapsed(!collapsed)}
+          className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 transition-colors"
+        >
+          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+        </button>
+      </div>
+
+      <nav className="flex-1 px-4 space-y-2 mt-4">
+        {navItems.map((item) => (
+          <a
+            key={item.label}
+            href={item.href}
+            className={cn(
+              "flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group hover:bg-blue-600 hover:text-white",
+              collapsed ? "justify-center px-2" : ""
+            )}
+          >
+            <item.icon size={22} className="shrink-0 transition-transform group-hover:scale-110" />
+            {!collapsed && <span className="font-medium">{item.label}</span>}
+          </a>
+        ))}
+      </nav>
+
+      <div className="p-4 mt-auto border-t border-slate-800">
+        <button className={cn(
+          "flex items-center gap-4 px-4 py-3 w-full rounded-xl hover:bg-rose-500/10 hover:text-rose-500 transition-colors",
+          collapsed ? "justify-center px-2" : ""
+        )}>
+          <LogOut size={22} className="shrink-0" />
+          {!collapsed && <span className="font-medium">Logout</span>}
+        </button>
+      </div>
+    </aside>
+  );
+};

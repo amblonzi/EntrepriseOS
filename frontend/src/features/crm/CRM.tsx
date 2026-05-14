@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Search, Filter, MoreHorizontal, User as UserIcon, Building2, CircleDollarSign, X, Trash2 } from 'lucide-react';
+import { Plus, Search, Filter, User as UserIcon, Building2, CircleDollarSign, X, Trash2 } from 'lucide-react';
 import api from '../../lib/api';
 
 interface Lead {

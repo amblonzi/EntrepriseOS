@@ -1,5 +1,5 @@
-from typing import Generator
-from fastapi import Depends, HTTPException, status
+from typing import Generator, Optional
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from pydantic import ValidationError
@@ -12,7 +12,17 @@ from app.db.session import get_db
 from app.models.auth import User
 from app.schemas.auth import TokenPayload
 
-reusable_oauth2 = OAuth2PasswordBearer(
+class OAuth2PasswordBearerWithCookie(OAuth2PasswordBearer):
+    async def __call__(self, request: Request) -> Optional[str]:
+        try:
+            return await super().__call__(request)
+        except HTTPException:
+            token = request.cookies.get("access_token")
+            if not token:
+                raise
+            return token
+
+reusable_oauth2 = OAuth2PasswordBearerWithCookie(
     tokenUrl=f"{settings.API_V1_STR}/auth/login/access-token"
 )
 
@@ -26,7 +36,7 @@ async def get_current_user(
         token_data = TokenPayload(**payload)
     except (jwt.JWTError, ValidationError):
         raise HTTPException(
-            status_code=status.HTTP_03_FORBIDDEN,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
     

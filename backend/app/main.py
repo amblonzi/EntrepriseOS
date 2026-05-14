@@ -1,5 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
 from app.api.v1.api import api_router
 from app.core.config import settings
 
@@ -10,15 +14,28 @@ app = FastAPI(
     version="0.1.0",
 )
 
+# Rate limiting setup
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 # Set all CORS enabled origins
-if settings.BACKEND_CORS_ORIGINS:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+allowed_origins = [str(origin) for origin in settings.BACKEND_CORS_ORIGINS]
+if not allowed_origins:
+    if settings.ENVIRONMENT == "production":
+        # In production we must explicitly set origins to prevent CSRF/CORS issues
+        raise RuntimeError("BACKEND_CORS_ORIGINS must be set in production environment")
+    else:
+        # Development defaults
+        allowed_origins = ["http://localhost:3000", "http://localhost:5173", "http://localhost:8000"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 

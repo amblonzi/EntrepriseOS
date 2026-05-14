@@ -5,6 +5,12 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "Inphora EntrepriseOS"
+    ENVIRONMENT: str = "development"
+    
+    # Security
+    SECRET_KEY: str = "SUPER_SECRET_KEY_CHANGE_THIS_IN_PROD"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     
     # CORS
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []

@@ -25,6 +25,7 @@ class UserUpdate(UserBase):
 class UserOut(UserBase):
     id: UUID
     tenant_id: UUID
+    role: str
 
     class Config:
         from_attributes = True

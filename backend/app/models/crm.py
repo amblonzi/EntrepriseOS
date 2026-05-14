@@ -5,11 +5,11 @@ from app.models.base import Base
 import enum
 
 class LeadStatus(str, enum.Enum):
-    NEW = "new"
-    CONTACTED = "contacted"
-    QUALIFIED = "qualified"
-    LOST = "lost"
-    WON = "won"
+    NEW = "NEW"
+    CONTACTED = "CONTACTED"
+    QUALIFIED = "QUALIFIED"
+    LOST = "LOST"
+    WON = "WON"
 
 class Lead(Base):
     tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenant.id"), nullable=False)

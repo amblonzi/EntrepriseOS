@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Search, Filter, MoreHorizontal, User as UserIcon, Building2, CircleDollarSign } from 'lucide-react';
+import { Plus, Search, Filter, MoreHorizontal, User as UserIcon, Building2, CircleDollarSign, X } from 'lucide-react';
 import api from '../../lib/api';
 
 interface Lead {
@@ -21,33 +21,151 @@ const statusColors: Record<string, string> = {
 export const CRM = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [newLead, setNewLead] = useState({
+    first_name: '',
+    last_name: '',
+    company: '',
+    email: '',
+    phone: '',
+    estimated_value: 0
+  });
+
+  const fetchLeads = async () => {
+    setIsLoading(true);
+    try {
+      const response = await api.get('/crm/leads');
+      setLeads(response.data);
+    } catch (error) {
+      console.error('Failed to fetch leads:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchLeads = async () => {
-      try {
-        const response = await api.get('/crm/leads');
-        setLeads(response.data);
-      } catch (error) {
-        console.error('Failed to fetch leads:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchLeads();
   }, []);
 
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await api.post('/crm/leads', newLead);
+      setShowModal(false);
+      setNewLead({
+        first_name: '',
+        last_name: '',
+        company: '',
+        email: '',
+        phone: '',
+        estimated_value: 0
+      });
+      fetchLeads();
+    } catch (error) {
+      console.error('Failed to create lead:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500 relative">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">CRM Pipeline</h1>
           <p className="text-slate-500 mt-1">Manage your leads and track potential sales.</p>
         </div>
-        <button className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-sm shadow-blue-600/20">
+        <button 
+          onClick={() => setShowModal(true)}
+          className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-sm shadow-blue-600/20"
+        >
           <Plus size={18} />
           New Lead
         </button>
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-slate-900">Create New Lead</h2>
+              <button onClick={() => setShowModal(false)} className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleCreate} className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-slate-700">First Name</label>
+                  <input 
+                    required
+                    type="text" 
+                    value={newLead.first_name}
+                    onChange={(e) => setNewLead({...newLead, first_name: e.target.value})}
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-slate-700">Last Name</label>
+                  <input 
+                    required
+                    type="text" 
+                    value={newLead.last_name}
+                    onChange={(e) => setNewLead({...newLead, last_name: e.target.value})}
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Company</label>
+                <input 
+                  required
+                  type="text" 
+                  value={newLead.company}
+                  onChange={(e) => setNewLead({...newLead, company: e.target.value})}
+                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Email</label>
+                <input 
+                  type="email" 
+                  value={newLead.email}
+                  onChange={(e) => setNewLead({...newLead, email: e.target.value})}
+                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Estimated Value ($)</label>
+                <input 
+                  type="number" 
+                  value={newLead.estimated_value}
+                  onChange={(e) => setNewLead({...newLead, estimated_value: parseInt(e.target.value)})}
+                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                />
+              </div>
+              <div className="pt-4 flex gap-3">
+                <button 
+                  type="button" 
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 font-medium rounded-xl hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="flex-1 px-4 py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/20 disabled:opacity-70"
+                >
+                  {isSubmitting ? 'Creating...' : 'Create Lead'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">

@@ -3,9 +3,10 @@ from typing import Any, Union
 from jose import jwt
 import bcrypt
 
+from app.core.config import settings
+
 # We use bcrypt directly to avoid passlib compatibility issues with newer bcrypt versions
 ALGORITHM = "HS256"
-SECRET_KEY = "SUPER_SECRET_KEY_CHANGE_THIS" # Should be in settings
 
 def create_access_token(
     subject: Union[str, Any], expires_delta: timedelta = None
@@ -13,10 +14,14 @@ def create_access_token(
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode = {"exp": expire, "sub": str(subject)}
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+def create_refresh_token(subject: Union[str, Any]) -> str:
+    expire = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    return jwt.encode({"exp": expire, "sub": str(subject), "type": "refresh"}, settings.SECRET_KEY, algorithm=ALGORITHM)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     try:

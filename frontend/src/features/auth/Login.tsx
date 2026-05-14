@@ -21,23 +21,19 @@ export const Login = () => {
       formData.append('username', email);
       formData.append('password', password);
 
-      const response = await api.post('/auth/login/access-token', formData, {
+      await api.post('/auth/login/access-token', formData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
       });
 
-      // Temporarily store token so checkAuth/api can use it
-      localStorage.setItem('token', response.data.access_token);
-      
-      // Fetch user details
+      // Fetch user details - cookie is sent automatically
       const userRes = await api.get('/auth/me');
-      login(response.data.access_token, userRes.data);
+      login(userRes.data);
       
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to login. Please try again.');
-      localStorage.removeItem('token');
     } finally {
       setIsLoading(false);
     }

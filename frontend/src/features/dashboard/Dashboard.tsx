@@ -64,32 +64,32 @@ const Dashboard = () => {
           title="Total Revenue" 
           value={new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(stats?.total_revenue || 0)} 
           icon={DollarSign} 
-          trend="12.5%" 
-          trendUp={true}
+          trend={stats?.revenue_trend_val || "0%"} 
+          trendUp={parseFloat(stats?.revenue_trend_val) >= 0}
           color="green"
         />
         <StatCard 
           title="Total Leads" 
           value={stats?.total_leads?.toString() || "0"} 
           icon={Users} 
-          trend="4.2%" 
-          trendUp={true}
+          trend={stats?.leads_trend || "0%"} 
+          trendUp={parseFloat(stats?.leads_trend) >= 0}
           color="blue"
         />
         <StatCard 
           title="Active Deals" 
           value={stats?.active_deals?.toString() || "0"} 
           icon={ShoppingCart} 
-          trend="2.1%" 
-          trendUp={false}
+          trend={stats?.active_deals_trend || "0%"} 
+          trendUp={parseFloat(stats?.active_deals_trend) >= 0}
           color="orange"
         />
         <StatCard 
           title="Conversion Rate" 
           value={`${stats?.conversion_rate || 0}%`} 
           icon={TrendingUp} 
-          trend="0.8%" 
-          trendUp={true}
+          trend={stats?.conversion_trend || "0%"} 
+          trendUp={parseFloat(stats?.conversion_trend) >= 0}
           color="purple"
         />
       </div>

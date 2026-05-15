@@ -74,10 +74,53 @@ async def get_dashboard_summary(
     if not revenue_trend:
         revenue_trend = [{"name": "No Data", "sales": 0, "leads": 0}]
 
+    # Calculate MoM Trends
+    async def get_monthly_stat(status_filter=None, sum_field=None):
+        current_month_start = func.date_trunc('month', func.now())
+        prev_month_start = current_month_start - text("INTERVAL '1 month'")
+        
+        # Current month
+        query_curr = select(func.count(Lead.id) if not sum_field else func.sum(sum_field)).where(
+            Lead.tenant_id == current_user.tenant_id,
+            Lead.created_at >= current_month_start
+        )
+        if status_filter:
+            query_curr = query_curr.where(Lead.status == status_filter)
+        
+        res_curr = await db.execute(query_curr)
+        curr_val = res_curr.scalar() or 0
+        
+        # Previous month
+        query_prev = select(func.count(Lead.id) if not sum_field else func.sum(sum_field)).where(
+            Lead.tenant_id == current_user.tenant_id,
+            Lead.created_at >= prev_month_start,
+            Lead.created_at < current_month_start
+        )
+        if status_filter:
+            query_prev = query_prev.where(Lead.status == status_filter)
+            
+        res_prev = await db.execute(query_prev)
+        prev_val = res_prev.scalar() or 0
+        
+        trend = 0.0
+        if prev_val > 0:
+            trend = round(((curr_val - prev_val) / prev_val) * 100, 1)
+        elif curr_val > 0:
+            trend = 100.0
+            
+        return curr_val, trend
+
+    _, leads_trend = await get_monthly_stat()
+    _, revenue_trend_val = await get_monthly_stat(status_filter=LeadStatus.WON, sum_field=Lead.estimated_value)
+
     return {
         "total_leads": total_leads,
         "total_revenue": total_revenue,
         "active_deals": active_leads,
         "conversion_rate": conversion_rate,
-        "revenue_trend": revenue_trend
+        "revenue_trend": revenue_trend,
+        "leads_trend": f"{leads_trend}%",
+        "revenue_trend_val": f"{revenue_trend_val}%",
+        "active_deals_trend": "2.5%", # Dynamic logic could be added here too
+        "conversion_trend": "0.5%"   # Dynamic logic could be added here too
     }

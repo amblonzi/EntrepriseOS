@@ -9,14 +9,13 @@ import { CRM } from './features/crm/CRM';
 import { Finance } from './features/finance/Finance';
 
 const AuthInitializer = () => {
-  const checkAuth = useAuthStore((state) => state.checkAuth);
-
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+    useAuthStore.getState().checkAuth();
+  }, []);
 
   return null;
 };
+
 
 export function App() {
   return (

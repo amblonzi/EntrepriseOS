@@ -42,10 +42,14 @@ export const Sidebar = () => {
       collapsed ? "w-20" : "w-64"
     )}>
       <div className="p-6 flex items-center justify-between">
-        {!collapsed && <span className="font-bold text-xl text-white tracking-tight">Inphora <span className="text-blue-500">OS</span></span>}
+        {!collapsed ? (
+          <img src="/src/assets/logo.png" alt="Inphora OS" className="h-8 brightness-0 invert" />
+        ) : (
+          <img src="/favicon.png" alt="OS" className="w-8 h-8 rounded-lg" />
+        )}
         <button 
           onClick={() => setCollapsed(!collapsed)}
-          className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 transition-colors"
+          className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 transition-colors ml-2"
         >
           {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </button>

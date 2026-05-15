@@ -42,11 +42,10 @@ export const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-3xl shadow-xl border border-slate-100">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900">
-            Sign in to Inphora<span className="text-blue-600">OS</span>
-          </h2>
-          <p className="mt-2 text-center text-sm text-slate-500">
+        <div className="text-center">
+          <img src="/src/assets/logo.png" alt="Inphora OS" className="h-16 mx-auto mb-6" />
+          <h2 className="text-2xl font-bold text-slate-900">Welcome Back</h2>
+          <p className="mt-2 text-sm text-slate-500">
             Enter your credentials to access your workspace
           </p>
         </div>

@@ -8,13 +8,13 @@ from app.core import security
 from app.core.config import settings
 from app.db.session import get_db
 from app.models.auth import User
-from app.schemas.auth import Token, UserCreate, UserOut
+from app.schemas.auth import UserCreate, UserOut
 from app.api import deps
-from app.main import limiter
+from app.core.limiter import limiter
 
 router = APIRouter()
 
-@router.post("/login/access-token", response_model=Token)
+@router.post("/login/access-token")
 @limiter.limit("5/minute")
 async def login_access_token(
     request: Request,
@@ -56,12 +56,9 @@ async def login_access_token(
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
     )
     
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-    }
+    return {"message": "Login successful"}
 
-@router.post("/refresh", response_model=Token)
+@router.post("/refresh")
 async def refresh_access_token(
     request: Request,
     response: Response,
@@ -103,10 +100,7 @@ async def refresh_access_token(
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
     )
     
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-    }
+    return {"message": "Token refreshed"}
 
 @router.post("/logout")
 async def logout(response: Response):

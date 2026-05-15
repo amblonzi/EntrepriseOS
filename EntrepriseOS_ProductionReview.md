@@ -25,14 +25,9 @@ The project has a solid architectural vision — multi-tenant CRM/ERP for Africa
 
 ## 1. Security Issues
 
-### 🔴 CRITICAL — Hardcoded SECRET_KEY (`backend/app/core/security.py`)
+### 🔴 CRITICAL — Hardcoded SECRET_KEY (`backend/app/core/security.py`) - **FIXED**
 
-```python
-# CURRENT (line 8)
-SECRET_KEY = "SUPER_SECRET_KEY_CHANGE_THIS"
-```
-
-Any JWT signed with this key is trivially forgeable. Anyone who reads the public repo can impersonate any user.
+The `SECRET_KEY` is now mandatory in `config.py` and loaded from environment variables.
 
 **Fix:**
 ```python
@@ -59,89 +54,21 @@ SECRET_KEY=$(openssl rand -hex 32)
 
 ---
 
-### 🔴 CRITICAL — HTTP 403 typo causes all auth to fail (`backend/app/api/deps.py`)
+### 🔴 CRITICAL — HTTP 403 typo causes all auth to fail (`backend/app/api/deps.py`) - **FIXED**
 
-```python
-# CURRENT (line 22) — wrong constant name, will raise AttributeError at runtime
-status.HTTP_03_FORBIDDEN,
-```
-
-**Fix:**
-```python
-status.HTTP_403_FORBIDDEN,
-```
+The typo `HTTP_03_FORBIDDEN` has been corrected to `HTTP_403_FORBIDDEN`.
 
 ---
 
-### 🔴 CRITICAL — Token stored in `localStorage` is XSS-vulnerable (`frontend/src/store/authStore.ts`)
+### 🔴 CRITICAL — Token stored in `localStorage` is XSS-vulnerable (`frontend/src/store/authStore.ts`) - **FIXED**
 
-`localStorage` is readable by any JavaScript on the page. A single XSS vulnerability gives an attacker every user's token forever.
-
-**Fix:** Use `httpOnly` cookies managed by the backend.
-
-```python
-# backend/app/api/v1/endpoints/auth.py
-from fastapi import Response
-
-@router.post("/login/access-token")
-async def login_access_token(response: Response, ...):
-    ...
-    response.set_cookie(
-        key="access_token",
-        value=access_token,
-        httponly=True,
-        secure=True,        # HTTPS only
-        samesite="lax",
-        max_age=60 * settings.ACCESS_TOKEN_EXPIRE_MINUTES,
-    )
-    return {"message": "Login successful", "user": user}
-```
-
-```typescript
-// frontend/src/store/authStore.ts — remove all localStorage token usage
-// The cookie is sent automatically; just hit /auth/me on load
-export const useAuthStore = create<AuthState>((set) => ({
-  ...
-  checkAuth: async () => {
-    try {
-      const response = await api.get('/auth/me');
-      set({ user: response.data, isAuthenticated: true, isLoading: false });
-    } catch {
-      set({ user: null, isAuthenticated: false, isLoading: false });
-    }
-  }
-}));
-```
+`authStore.ts` now uses `httpOnly` cookies managed by the backend. `localStorage` is no longer used for tokens.
 
 ---
 
-### 🔴 CRITICAL — No rate limiting on `/login` endpoint
+### 🔴 CRITICAL — No rate limiting on `/login` endpoint - **FIXED**
 
-The login route has no brute-force protection. An attacker can try millions of passwords.
-
-**Fix:**
-```python
-# backend/requirements.txt — add:
-slowapi
-
-# backend/app/main.py
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
-
-limiter = Limiter(key_func=get_remote_address)
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-
-# backend/app/api/v1/endpoints/auth.py
-from app.main import limiter
-from fastapi import Request
-
-@router.post("/login/access-token")
-@limiter.limit("5/minute")
-async def login_access_token(request: Request, ...):
-    ...
-```
+The `/login` endpoint now has rate limiting using `slowapi`.
 
 ---
 
@@ -197,26 +124,9 @@ admin_password = os.environ["SEED_ADMIN_PASSWORD"]
 
 ## 2. Back-end Functional Gaps
 
-### 🟠 HIGH — No Alembic migrations wired up
+### 🟠 HIGH — No Alembic migrations wired up - **FIXED**
 
-`seed.py` calls `Base.metadata.create_all` directly. This works once but is not idempotent and provides no schema versioning. Any schema change requires manual intervention or data loss.
-
-**Fix — initialise Alembic:**
-```bash
-cd backend
-alembic init alembic
-```
-```ini
-# alembic/env.py — add:
-from app.models.base import Base
-from app.models import auth, crm  # import all model modules
-target_metadata = Base.metadata
-```
-```bash
-alembic revision --autogenerate -m "initial_schema"
-alembic upgrade head
-```
-Replace `create_all` in `seed.py` with `alembic upgrade head` in the container startup script.
+Alembic migrations have been initialized and are used for schema management.
 
 ---
 

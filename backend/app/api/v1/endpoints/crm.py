@@ -1,4 +1,5 @@
 from typing import Any, List
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -42,7 +43,7 @@ async def create_lead(
     Create a new lead.
     """
     lead = Lead(
-        **lead_in.dict(),
+        **lead_in.model_dump(),
         tenant_id=current_user.tenant_id
     )
     db.add(lead)
@@ -68,7 +69,7 @@ async def update_lead(
     if not lead:
         raise HTTPException(status_code=404, detail="Lead not found")
     
-    update_data = lead_in.dict(exclude_unset=True)
+    update_data = lead_in.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(lead, field, value)
     

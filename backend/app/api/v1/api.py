@@ -1,3 +1,4 @@
+from fastapi import APIRouter
 from app.api.v1.endpoints import auth, crm, analytics, finance, inventory, hr, projects
 
 api_router = APIRouter()

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy import Column, String, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from app.models.base import Base
@@ -16,5 +16,6 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     full_name = Column(String)
     role = Column(String, default="user") # Simplified for now, will expand to RBAC
+    is_active = Column(Boolean, default=True)
     
     tenant = relationship("Tenant", back_populates="users")

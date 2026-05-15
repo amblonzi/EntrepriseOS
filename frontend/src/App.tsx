@@ -6,16 +6,22 @@ import { Login } from './features/auth/Login';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { useAuthStore } from './store/authStore';
 import { CRM } from './features/crm/CRM';
+import { Finance } from './features/finance/Finance';
 
-function App() {
+const AuthInitializer = () => {
   const checkAuth = useAuthStore((state) => state.checkAuth);
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
+  return null;
+};
+
+export function App() {
   return (
     <Router>
+      <AuthInitializer />
       <Routes>
         <Route path="/login" element={<Login />} />
         
@@ -49,10 +55,7 @@ function App() {
         <Route path="/finance" element={
           <ProtectedRoute>
             <DashboardLayout>
-              <div className="p-8">
-                <h1 className="text-3xl font-bold text-slate-900">Finance Module</h1>
-                <p className="text-slate-500 mt-2">Accounting and invoicing coming soon.</p>
-              </div>
+              <Finance />
             </DashboardLayout>
           </ProtectedRoute>
         } />
@@ -95,5 +98,3 @@ function App() {
     </Router>
   );
 }
-
-export default App;

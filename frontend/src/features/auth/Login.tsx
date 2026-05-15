@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../lib/api';
+import logo from '../../assets/logo.png';
 
 export const Login = () => {
   const [email, setEmail] = useState('');
@@ -43,7 +44,7 @@ export const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-3xl shadow-xl border border-slate-100">
         <div className="text-center">
-          <img src="/src/assets/logo.png" alt="Inphora OS" className="h-16 mx-auto mb-6" />
+          <img src={logo} alt="Inphora OS" className="h-16 mx-auto mb-6" />
           <h2 className="text-2xl font-bold text-slate-900">Welcome Back</h2>
           <p className="mt-2 text-sm text-slate-500">
             Enter your credentials to access your workspace

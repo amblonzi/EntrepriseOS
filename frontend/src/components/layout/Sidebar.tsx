@@ -14,6 +14,7 @@ import {
   UserCheck
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import logo from '../../assets/logo.png';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/' },
@@ -43,7 +44,7 @@ export const Sidebar = () => {
     )}>
       <div className="p-6 flex items-center justify-between">
         {!collapsed ? (
-          <img src="/src/assets/logo.png" alt="Inphora OS" className="h-8 brightness-0 invert" />
+          <img src={logo} alt="Inphora OS" className="h-8 brightness-0 invert" />
         ) : (
           <img src="/favicon.png" alt="OS" className="w-8 h-8 rounded-lg" />
         )}
